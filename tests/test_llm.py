@@ -34,16 +34,20 @@ class TestLoadCliProxyToken:
 
 
 class TestLLMClient:
-    def test_init_with_api_key(self) -> None:
+    @patch("content_rewriter.llm._detect_proxy", return_value=False)
+    def test_init_with_api_key(self, _mock_proxy: MagicMock) -> None:
         client = LLMClient(api_key="sk-direct-key")
         assert client.api_key == "sk-direct-key"
+        assert client._use_proxy is False
 
-    def test_init_raises_without_credentials(self, tmp_path: Path) -> None:
+    @patch("content_rewriter.llm._detect_proxy", return_value=False)
+    def test_init_raises_without_credentials(self, _mock_proxy: MagicMock, tmp_path: Path) -> None:
         with patch.dict("os.environ", {}, clear=True):
             with pytest.raises(LLMError, match="No Claude API credentials"):
                 LLMClient(config_dir=tmp_path)
 
-    def test_generate_calls_api(self) -> None:
+    @patch("content_rewriter.llm._detect_proxy", return_value=False)
+    def test_generate_via_anthropic(self, _mock_proxy: MagicMock) -> None:
         client = LLMClient(api_key="sk-test")
         mock_response = MagicMock()
         mock_response.content = [MagicMock(text="Generated text")]
@@ -55,3 +59,24 @@ class TestLLMClient:
             )
             assert result == "Generated text"
             mock_messages.create.assert_called_once()
+
+    @patch("content_rewriter.llm._detect_proxy", return_value=True)
+    def test_init_with_proxy(self, _mock_proxy: MagicMock) -> None:
+        client = LLMClient()
+        assert client._use_proxy is True
+        assert client._client is None
+
+    @patch("content_rewriter.llm._detect_proxy", return_value=True)
+    @patch("content_rewriter.llm.httpx.post")
+    def test_generate_via_proxy(self, mock_post: MagicMock, _mock_proxy: MagicMock) -> None:
+        client = LLMClient()
+        mock_response = MagicMock()
+        mock_response.json.return_value = {
+            "choices": [{"message": {"content": "Proxy response"}}]
+        }
+        mock_response.raise_for_status = MagicMock()
+        mock_post.return_value = mock_response
+
+        result = client.generate(system="System", user_message="Hello")
+        assert result == "Proxy response"
+        mock_post.assert_called_once()
