@@ -18,7 +18,7 @@ class WeChatFormatter(Formatter):
     platform = "wechat"
 
     def format_prompt(
-        self, content: NormalizedContent, voice_profile: str | None = None
+        self, content: NormalizedContent, writing_style: str | None = None
     ) -> tuple[str, str]:
         system_parts = [
             "你是一个微信公众号内容创作专家。将以下内容改写为公众号文章格式。",
@@ -32,8 +32,8 @@ class WeChatFormatter(Formatter):
             "- 最后一行写'封面图建议：'加上封面图描述（900x500px）",
             "- 输出格式：第一行是标题（以 # 开头），后面是完整文章",
         ]
-        if voice_profile:
-            system_parts.extend(["", "写作风格要求：", voice_profile])
+        if writing_style:
+            system_parts.extend(["", "写作风格要求：", writing_style])
 
         key_points_text = "\n".join(f"- {p}" for p in content.key_points) if content.key_points else "无"
 

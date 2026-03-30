@@ -12,7 +12,7 @@ from rich.console import Console
 from content_rewriter.llm import LLMClient, LLMError
 from content_rewriter.models import ExtractorOutput, RewriteStatus
 from content_rewriter.rewriter import rewrite_content
-from content_rewriter.voice import load_voice_profile
+from content_rewriter.style import load_writing_style
 
 app = typer.Typer(help="Bidirectional platform content transformer.")
 console = Console()
@@ -24,7 +24,7 @@ def rewrite_command(
     from_platform: str = typer.Option(..., "--from", "-f", help="Source platform (e.g. douyin)"),
     to_platforms: str = typer.Option(..., "--to", "-t", help="Target platform(s), comma-separated (e.g. xiaohongshu,wechat)"),
     output_dir: Path = typer.Option(Path("output"), "--output-dir", "-o", help="Output directory for drafts"),
-    voice_config_dir: Path = typer.Option(Path.home() / ".content-rewriter", "--voice-dir", help="Voice profile directory"),
+    style_dir: Path = typer.Option(Path.home() / ".content-rewriter", "--style-dir", help="Writing style directory"),
 ) -> None:
     """Rewrite extracted content for target platform(s)."""
     if not content_path.exists():
@@ -43,9 +43,9 @@ def rewrite_command(
         console.print(f"[red]Error: Invalid extractor output: {e}[/red]")
         raise typer.Exit(code=1)
 
-    voice_profile = load_voice_profile(config_dir=voice_config_dir)
-    if voice_profile is None:
-        console.print("[yellow]Warning: No voice profile found. Output will use generic style.[/yellow]")
+    writing_style = load_writing_style(config_dir=style_dir)
+    if writing_style is None:
+        console.print("[yellow]Warning: No writing style found. Output will use generic style.[/yellow]")
 
     try:
         llm_client = LLMClient()
@@ -61,7 +61,7 @@ def rewrite_command(
         from_platform=from_platform,
         to_platforms=targets,
         llm_client=llm_client,
-        voice_profile=voice_profile,
+        writing_style=writing_style,
     )
 
     today = date.today().isoformat()
@@ -72,8 +72,8 @@ def rewrite_command(
 
         if result.status == RewriteStatus.FAILED:
             content = f"[REWRITE_FAILED]\n\nError: {result.error_message}\n\n---\n\nRaw transcript:\n{result.body}"
-        elif voice_profile is None:
-            content = f"[NO_VOICE_PROFILE]\n\n# {result.title}\n\n{result.body}"
+        elif writing_style is None:
+            content = f"[NO_WRITING_STYLE]\n\n# {result.title}\n\n{result.body}"
             if result.hashtags:
                 content += "\n\n" + " ".join(f"#{tag}" for tag in result.hashtags)
         else:

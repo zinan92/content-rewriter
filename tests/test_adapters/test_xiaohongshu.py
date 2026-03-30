@@ -35,9 +35,9 @@ class TestXiaohongshuFormatter:
         assert "400" in system
         assert sample_content.core_text in user
 
-    def test_format_prompt_includes_voice_profile(self, sample_content: NormalizedContent) -> None:
+    def test_format_prompt_includes_writing_style(self, sample_content: NormalizedContent) -> None:
         formatter = XiaohongshuFormatter()
-        system, _ = formatter.format_prompt(sample_content, voice_profile="说话直接，用短句")
+        system, _ = formatter.format_prompt(sample_content, writing_style="说话直接，用短句")
         assert "说话直接" in system
 
     def test_parse_output_extracts_title_body_hashtags(self, sample_content: NormalizedContent) -> None:

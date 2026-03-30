@@ -47,7 +47,7 @@ class TestRewriteContent:
         assert results[0].target_platform == "xiaohongshu"
         assert results[1].target_platform == "wechat"
 
-    def test_rewrite_with_voice_profile(self, douyin_extractor_output: dict) -> None:
+    def test_rewrite_with_writing_style(self, douyin_extractor_output: dict) -> None:
         source = ExtractorOutput.model_validate(douyin_extractor_output)
         mock_client = MagicMock()
         mock_client.generate.return_value = "# 标题\n\n正文\n\n#标签"
@@ -56,7 +56,7 @@ class TestRewriteContent:
             from_platform="douyin",
             to_platforms=["xiaohongshu"],
             llm_client=mock_client,
-            voice_profile="说话直接",
+            writing_style="说话直接",
         )
         call_args = mock_client.generate.call_args
         assert "说话直接" in call_args.kwargs["system"]

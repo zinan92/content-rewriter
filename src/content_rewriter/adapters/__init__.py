@@ -34,7 +34,7 @@ class Formatter(ABC):
     platform: str
 
     @abstractmethod
-    def format_prompt(self, content: NormalizedContent, voice_profile: str | None = None) -> tuple[str, str]:
+    def format_prompt(self, content: NormalizedContent, writing_style: str | None = None) -> tuple[str, str]:
         """Return (system_prompt, user_message) for LLM generation."""
         ...
 

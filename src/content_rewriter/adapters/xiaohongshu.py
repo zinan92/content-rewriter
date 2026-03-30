@@ -18,7 +18,7 @@ class XiaohongshuFormatter(Formatter):
     platform = "xiaohongshu"
 
     def format_prompt(
-        self, content: NormalizedContent, voice_profile: str | None = None
+        self, content: NormalizedContent, writing_style: str | None = None
     ) -> tuple[str, str]:
         system_parts = [
             "你是一个小红书内容创作专家。将以下内容改写为小红书笔记格式。",
@@ -30,8 +30,8 @@ class XiaohongshuFormatter(Formatter):
             "- 结尾加5个相关话题标签，格式为 #标签",
             "- 输出格式：第一行是标题（以 # 开头），空行后是正文，最后一段是hashtags",
         ]
-        if voice_profile:
-            system_parts.extend(["", "写作风格要求：", voice_profile])
+        if writing_style:
+            system_parts.extend(["", "写作风格要求：", writing_style])
 
         key_points_text = "\n".join(f"- {p}" for p in content.key_points) if content.key_points else "无"
 

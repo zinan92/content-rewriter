@@ -48,7 +48,7 @@ class RewriteStatus(StrEnum):
 
     SUCCESS = "success"
     FAILED = "failed"
-    NO_VOICE_PROFILE = "no_voice_profile"
+    NO_WRITING_STYLE = "no_writing_style"
 
 
 class RewriteResult(BaseModel):

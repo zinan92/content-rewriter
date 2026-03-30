@@ -12,7 +12,7 @@ def rewrite_content(
     from_platform: str,
     to_platforms: list[str],
     llm_client: LLMClient,
-    voice_profile: str | None = None,
+    writing_style: str | None = None,
 ) -> list[RewriteResult]:
     """Rewrite source content for each target platform."""
     import content_rewriter.adapters.douyin  # noqa: F401
@@ -25,7 +25,7 @@ def rewrite_content(
     results: list[RewriteResult] = []
     for target in to_platforms:
         formatter = get_formatter(target)
-        system_prompt, user_message = formatter.format_prompt(normalized, voice_profile)
+        system_prompt, user_message = formatter.format_prompt(normalized, writing_style)
 
         try:
             llm_output = llm_client.generate(system=system_prompt, user_message=user_message)
