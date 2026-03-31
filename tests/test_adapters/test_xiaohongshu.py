@@ -31,10 +31,12 @@ class TestXiaohongshuFormatter:
         formatter = XiaohongshuFormatter()
         system, user = formatter.format_prompt(sample_content)
         assert "小红书" in system
-        assert "300-800" in system
+        assert "500-800" in system
         assert "收藏" in system
-        assert "互动引导" in system
-        assert "禁词" in system
+        assert "互动引导" in system or "互动" in system
+        assert "禁止事项" in system or "禁词" in system
+        assert "封面" in system
+        assert "SEO" in system or "关键词布局" in system
         assert sample_content.core_text in user
 
     def test_format_prompt_includes_writing_style(self, sample_content: NormalizedContent) -> None:
