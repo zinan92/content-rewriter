@@ -44,7 +44,21 @@ class Formatter(ABC):
         ...
 
 
-NORMALIZERS: dict[str, Normalizer] = {}
+class GenericNormalizer(Normalizer):
+    """Passthrough normalizer for bare text — no platform-specific stripping."""
+
+    def normalize(self, source: ExtractorOutput) -> NormalizedContent:
+        return NormalizedContent(
+            content_id=source.content_id,
+            source_platform=source.source_platform,
+            title=source.title,
+            core_text=source.transcript,
+            key_points=list(source.key_points),
+            visual_context=list(source.visual_descriptions),
+        )
+
+
+NORMALIZERS: dict[str, Normalizer] = {"generic": GenericNormalizer()}
 FORMATTERS: dict[str, Formatter] = {}
 
 
