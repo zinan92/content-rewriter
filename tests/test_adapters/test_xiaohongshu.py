@@ -31,8 +31,10 @@ class TestXiaohongshuFormatter:
         formatter = XiaohongshuFormatter()
         system, user = formatter.format_prompt(sample_content)
         assert "小红书" in system
-        assert "20" in system
-        assert "400" in system
+        assert "300-800" in system
+        assert "收藏" in system
+        assert "互动引导" in system
+        assert "禁词" in system
         assert sample_content.core_text in user
 
     def test_format_prompt_includes_writing_style(self, sample_content: NormalizedContent) -> None:
@@ -57,6 +59,6 @@ class TestXiaohongshuFormatter:
         result = formatter.parse_output(sample_content, llm_output)
         assert result.content_id == "douyin_123"
         assert result.target_platform == "xiaohongshu"
-        assert len(result.title) <= 20
+        assert len(result.title) <= 30
         assert len(result.hashtags) >= 3
         assert result.status == RewriteStatus.SUCCESS
