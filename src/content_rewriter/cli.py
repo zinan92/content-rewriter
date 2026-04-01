@@ -57,17 +57,23 @@ def rewrite_command(
             console.print(f"[red]Error: Expected a directory or text file (.md/.txt), got: {content_path}[/red]")
             raise typer.Exit(code=1)
 
+        # Try extractor_output.json first (legacy), then structured_text.md (current extractor output)
         extractor_file = content_path / "extractor_output.json"
-        if not extractor_file.exists():
-            console.print(f"[red]Error: extractor_output.json not found in {content_path}[/red]")
-            console.print("[dim]Tip: Run 'content extract' first, or pass a .md/.txt file directly.[/dim]")
-            raise typer.Exit(code=1)
+        structured_text_file = content_path / "structured_text.md"
 
-        try:
-            raw = json.loads(extractor_file.read_text())
-            source = ExtractorOutput.model_validate(raw)
-        except Exception as e:
-            console.print(f"[red]Error: Invalid extractor output: {e}[/red]")
+        if extractor_file.exists():
+            try:
+                raw = json.loads(extractor_file.read_text())
+                source = ExtractorOutput.model_validate(raw)
+            except Exception as e:
+                console.print(f"[red]Error: Invalid extractor output: {e}[/red]")
+                raise typer.Exit(code=1)
+        elif structured_text_file.exists():
+            console.print(f"[dim]Found structured_text.md, using as transcript...[/dim]")
+            source = _wrap_bare_text(structured_text_file, from_platform)
+        else:
+            console.print(f"[red]Error: No extractor output found in {content_path}[/red]")
+            console.print("[dim]Tip: Run 'content extract' first, or pass a .md/.txt file directly.[/dim]")
             raise typer.Exit(code=1)
 
     writing_style = load_writing_style(config_dir=style_dir)
