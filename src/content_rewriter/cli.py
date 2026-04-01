@@ -57,7 +57,7 @@ def rewrite_command(
             console.print(f"[red]Error: Expected a directory or text file (.md/.txt), got: {content_path}[/red]")
             raise typer.Exit(code=1)
 
-        # Try extractor_output.json first (legacy), then structured_text.md (current extractor output)
+        # Try extractor_output.json (primary handoff format), then structured_text.md (fallback)
         extractor_file = content_path / "extractor_output.json"
         structured_text_file = content_path / "structured_text.md"
 
